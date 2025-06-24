@@ -29,11 +29,11 @@ export const useStore = create<AppState>()(
           example: storeBears,
           game: storeGame,
         },
-        (set: any) => ({
+        (set: any, get: any) => ({
           ...storeUIActions(set),
           ...storeBearsActions(set),
           ...storeToursActions(set),
-          ...storeGameActions(set),
+          ...storeGameActions(set, get),
         })
       ),
       {

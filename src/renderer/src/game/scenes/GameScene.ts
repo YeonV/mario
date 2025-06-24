@@ -125,7 +125,7 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  private collectCoin(player: Phaser.Types.Physics.Arcade.GameObjectWithBody, coin: Phaser.Types.Physics.Arcade.GameObjectWithBody): void {
+  private collectCoin(_player: Phaser.Types.Physics.Arcade.GameObjectWithBody, coin: Phaser.Types.Physics.Arcade.GameObjectWithBody): void {
     const coinSprite = coin as Phaser.Physics.Arcade.Sprite;
     coinSprite.disableBody(true, true);
     this.score += 10;
@@ -149,7 +149,7 @@ export class GameScene extends Phaser.Scene {
   }
   
   // --- NEW: The function that runs when the player hits a bomb ---
-  private hitBomb(player: Phaser.Types.Physics.Arcade.GameObjectWithBody, bomb: Phaser.Types.Physics.Arcade.GameObjectWithBody): void {
+  private hitBomb(_player: Phaser.Types.Physics.Arcade.GameObjectWithBody, _bomb: Phaser.Types.Physics.Arcade.GameObjectWithBody): void {
     this.physics.pause();
     this.player.setTint(0xff0000);
     this.player.anims.play('turn');
