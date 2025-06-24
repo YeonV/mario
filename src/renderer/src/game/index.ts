@@ -17,10 +17,14 @@ export const launchGame = (containerId: string, customData: LaunchConfigCustomDa
       default: 'arcade',
       arcade: {
         gravity: { x: 0, y: 450 },
-        debug: import.meta.env.DEV,
+        // debug: import.meta.env.DEV,
       },
     },
     scene: [GameScene],
+    scale: {
+      mode: Phaser.Scale.FIT, // This is the equivalent of "object-fit: contain"
+      autoCenter: Phaser.Scale.CENTER_BOTH, // This centers the canvas vertically and horizontally
+    }
   };
 
   const game = new Phaser.Game(config);

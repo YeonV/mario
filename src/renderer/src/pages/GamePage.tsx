@@ -73,17 +73,16 @@ export function GamePage() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2, height: '100vh', background: '#1e1e1e' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2, height: '100vh', background: '#1e1e1e', width: '100%' }}>
         
       
       {/* Score Header */}
-      <Box sx={{ width: 800, mb: 2, p: 2, border: '1px solid #444', borderRadius: 1, background: '#2d2d2d' }}>
-        <Typography variant="h4" sx={{ color: '#fff' }}>Super Vitron Bros.</Typography>
+      <Box sx={{ width: '100%', mb: 2, p: 2, border: '1px solid #444', borderRadius: 1, background: '#2d2d2d' }}>
         <Typography variant="h6" sx={{ color: '#fff' }}>Score: {score}</Typography>
       </Box>
 
       {/* Phaser Game Container */}
-      <Box sx={{ position: 'relative', border: '2px solid white', borderRadius: '4px', overflow: 'hidden', width: 800, height: 600 }}>
+      <Box sx={{ position: 'relative', border: '2px solid white', borderRadius: '4px', overflow: 'hidden', width: '100%', height: '100%' }}>
         <PhaserGame customData={customData} />
       </Box>
 
