@@ -16,6 +16,7 @@ export const PhaserGame: FC<PhaserGameProps> = ({ customData }) => {
     // Only create the game if the ref is null and the container exists
     if (gameContainerRef.current && !gameInstanceRef.current) {
       gameInstanceRef.current = launchGame(gameContainerRef.current.id, customData);
+      (window as any).phaserGame = gameInstanceRef.current;
     }
 
     // The cleanup function will run when the component unmounts
