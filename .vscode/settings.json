@@ -1,0 +1,18 @@
+{    
+  "material-icon-theme.hidesExplorerArrows": false,
+  "material-icon-theme.folders.theme": "specific",
+  "material-icon-theme.activeIconPack": "react",
+  "workbench.iconTheme": "material-icon-theme",
+  "material-icon-theme.folders.associations": {
+    "store":  "Typescript", 
+  },
+    "material-icon-theme.files.associations": {
+      "*.tsx":  "Typescript",
+      "*.interface.tsx":  "Typescript-def",
+  },
+  "eslint.format.enable": true,
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  }
+}
