@@ -4,7 +4,9 @@ import { Titlebar, TitlebarColor } from 'custom-electron-titlebar'
 import pkg from '../../package.json'
 
 // Custom APIs for renderer
-const api = {}
+const api = {
+  quit: (): void => ipcRenderer.send('quit-app') 
+}
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise

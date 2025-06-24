@@ -189,3 +189,7 @@ ipcMain.on('toggle-darkmode', (event) => {
   nativeTheme.themeSource = res
   mainWindow?.reload()
 })
+
+ipcMain.on('quit-app', () => {
+  app.quit();
+});

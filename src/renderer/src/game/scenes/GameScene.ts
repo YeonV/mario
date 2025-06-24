@@ -4,6 +4,7 @@ import { type LaunchConfigCustomData } from '../index';
 // --- NEW: Add onGameOver to our custom data interface ---
 interface ExtendedLaunchConfigCustomData extends LaunchConfigCustomData {
   onGameOver: () => void;
+  onPause: () => void; 
 }
 
 export class GameScene extends Phaser.Scene {
@@ -18,6 +19,7 @@ export class GameScene extends Phaser.Scene {
   private onScoreUpdate!: (score: number) => void;
   // --- NEW: Add a property for the game over callback ---
   private onGameOver!: () => void;
+  private onPause!: () => void;
 
   constructor() {
     super({ key: 'GameScene' });
@@ -28,6 +30,7 @@ export class GameScene extends Phaser.Scene {
     this.onScoreUpdate = customData.onScoreUpdate;
     // --- NEW: Get the onGameOver function from React ---
     this.onGameOver = customData.onGameOver;
+    this.onPause = customData.onPause
   }
 
   preload(): void {
@@ -98,6 +101,11 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.setBounds(0, 0, 1600, 600).startFollow(this.player, true, 0.08, 0.08);
 
     this.score = 0;
+
+    this.input.keyboard?.on('keydown-ESC', () => {
+        this.scene.pause(); // Pause Phaser's update loop
+        this.onPause();     // Tell React to show the pause menu
+    });
   }
 
   update(): void {

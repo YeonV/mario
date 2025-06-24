@@ -1,4 +1,4 @@
-import { Box, Typography, CssBaseline, ThemeProvider, createTheme, Modal, Button } from '@mui/material'; // Add Modal, Button
+import { Box, Typography, CssBaseline, ThemeProvider, createTheme, Modal, Button, Stack } from '@mui/material'; // Add Modal, Button
 import { PhaserGame } from './game/PhaserGame';
 import { useStore } from './store/useStore';
 import { useMemo } from 'react';
@@ -7,6 +7,7 @@ import type { LaunchConfigCustomData } from './game';
 
 interface ExtendedLaunchConfigCustomData extends LaunchConfigCustomData {
   onGameOver: () => void;
+  onPause: () => void;
 }
 
 const theme = createTheme({ palette: { mode: 'dark' } });
@@ -28,26 +29,35 @@ const modalStyle = {
 function App() {
   const score = useStore((state) => state.game.score);
   const isGameOver = useStore((state) => state.game.isGameOver); // Get game over state
+  const isPaused = useStore((state) => state.game.isPaused);
   const setScore = useStore((state) => state.setScore);
   const setGameOver = useStore((state) => state.setGameOver); // Get game over action
+  const togglePause = useStore((state) => state.togglePause);
 
-  // When we restart, we need to tell Phaser to restart the scene
+  const getGame = (): Phaser.Game | undefined => (window as any).phaserGame;
+
+
+  const handleContinue = () => {
+    getGame()?.scene.resume('GameScene');
+    togglePause(false);
+  };
+
   const handleRestart = () => {
-    // This is a bit of a hack. A better way would be an event bus.
-    // We signal a restart by setting isGameOver to false.
-    setGameOver(false);
-    // Find the running game instance and restart its main scene.
-    const game = (window as any).phaserGame as Phaser.Game;
-    if (game) {
-      game.scene.getScene('GameScene').scene.restart();
-    }
+    togglePause(false); // Close pause menu if open
+    setGameOver(false); // Close game over menu if open
+    getGame()?.scene.getScene('GameScene').scene.restart();
   };
   
+  const handleQuit = () => {
+    window.api.quit(); // Use our new preload function
+  };
+
   const customData = useMemo<ExtendedLaunchConfigCustomData>(() => ({
     onScoreUpdate: (newScore) => setScore(newScore),
-    // --- NEW: Define the onGameOver function to pass to Phaser ---
     onGameOver: () => setGameOver(true),
-  }), [setScore, setGameOver]);
+    onPause: () => togglePause(true), // Tell Zustand to pause
+  }), [setScore, setGameOver, togglePause]);
+
 
   // A bit of a hack to get the game instance for restarting.
   // We'll expose it on the window object from PhaserGame component.
@@ -65,6 +75,16 @@ function App() {
           <PhaserGame customData={customData} />
         </Box>
 
+        <Modal open={isPaused} onClose={handleContinue}>
+          <Box sx={modalStyle}>
+            <Typography variant="h3" component="h2">Paused</Typography>
+            <Stack spacing={2} sx={{ mt: 3, width: '100%' }}>
+              <Button variant="contained" color="primary" onClick={handleContinue}>Continue</Button>
+              <Button variant="outlined" color="secondary" onClick={handleRestart}>Restart</Button>
+              <Button variant="outlined" color="error" onClick={handleQuit}>Quit Game</Button>
+            </Stack>
+          </Box>
+        </Modal>
         {/* --- NEW: Game Over Modal --- */}
         <Modal
           open={isGameOver}

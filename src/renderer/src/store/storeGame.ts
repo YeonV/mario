@@ -6,6 +6,7 @@ import { produce } from 'immer';
 export const storeGame = {
   score: 0,
   isGameOver: false,
+  isPaused: false, 
 };
 
 export const storeGameActions = (set: any) => ({
@@ -30,5 +31,13 @@ export const storeGameActions = (set: any) => ({
       }),
       false,
       'game/setGameOver'
+    ),
+  togglePause: (isPaused: boolean): void =>
+    set(
+      produce((state: any) => {
+        state.game.isPaused = isPaused;
+      }),
+      false,
+      'game/togglePause'
     ),
 });
