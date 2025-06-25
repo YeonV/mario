@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { produce } from 'immer';
+import { THEMES } from '../game/themes'; 
 
 export interface HighScore {
   name: string;
@@ -12,7 +13,9 @@ export const storeGame = {
   isGameOver: false,
   isPaused: false,
   awaitingHighScoreName: false,
-  highScores: [] as HighScore[]
+  highScores: [] as HighScore[],
+  availableThemes: THEMES,
+  currentThemeId: 1,
 };
 
 export const storeGameActions = (set: any, get: any) => ({
@@ -74,5 +77,13 @@ export const storeGameActions = (set: any, get: any) => ({
       );
     }
   },
-
+  setTheme: (themeId: number): void => {
+    set(
+      produce((state: any) => {
+        state.game.currentThemeId = themeId;
+      }),
+      false,
+      'game/setTheme'
+    );
+  },
 });

@@ -1,22 +1,19 @@
-import { Box, Typography, CssBaseline, ThemeProvider, createTheme, Modal, Button, Stack } from '@mui/material'; // Add Modal, Button
-import { PhaserGame } from '../game/PhaserGame';
+import { Box, Button, Modal, Stack, Typography, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';
 import { useStore } from '../store/useStore';
 import { useMemo } from 'react';
-// --- NEW: Import the full config data type ---
-import type { LaunchConfigCustomData } from '../game'; 
-import { EnterHighScoreModal } from '@renderer/components/EnterHighScoreModal';
 import { useNavigate } from 'react-router-dom';
+import { PhaserGame } from '../game/PhaserGame';
+import type { LaunchConfigCustomData } from '../game';
+import { EnterHighScoreModal } from '../components/EnterHighScoreModal';
 
 interface ExtendedLaunchConfigCustomData extends LaunchConfigCustomData {
   onGameOver: () => void;
   onPause: () => void;
+  currentThemeId: number;
 }
 
-const theme = createTheme({ palette: { mode: 'dark' } });
-
-// Style for the Game Over modal
 export const modalStyle = {
-  position: 'absolute',
+  position: 'absolute' as const,
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
@@ -28,18 +25,12 @@ export const modalStyle = {
   textAlign: 'center',
 };
 
-export function GamePage() {
-    const navigate = useNavigate();
-
-  const score = useStore((state) => state.game.score);
-  const isGameOver = useStore((state) => state.game.isGameOver); // Get game over state
-  const isPaused = useStore((state) => state.game.isPaused);
-  const setScore = useStore((state) => state.setScore);
-  const setGameOver = useStore((state) => state.setGameOver); // Get game over action
-  const togglePause = useStore((state) => state.togglePause);
+export const GamePage = () => {
+  const navigate = useNavigate();
+  const { score, isGameOver, isPaused, availableThemes, currentThemeId } = useStore((s) => s.game);
+  const { setScore, setGameOver, togglePause, setTheme } = useStore((s) => s);
 
   const getGame = (): Phaser.Game | undefined => (window as any).phaserGame;
-
 
   const handleContinue = () => {
     getGame()?.scene.resume('GameScene');
@@ -47,53 +38,58 @@ export function GamePage() {
   };
 
   const handleRestart = () => {
-    togglePause(false); // Close pause menu if open
-    setGameOver(false); // Close game over menu if open
+    togglePause(false);
+    setGameOver(false);
     getGame()?.scene.getScene('GameScene').scene.restart();
   };
-  
-  const handleQuit = () => {
-    window.api.quit(); // Use our new preload function
-  };
 
-  const customData = useMemo<ExtendedLaunchConfigCustomData>(() => ({
-    onScoreUpdate: (newScore) => setScore(newScore),
-    onGameOver: () => setGameOver(true),
-    onPause: () => togglePause(true), // Tell Zustand to pause
-  }), [setScore, setGameOver, togglePause]);
-
- const handleMainMenu = () => {
-    // Before going to menu, make sure state is reset
+  const handleMainMenu = () => {
     togglePause(false);
     setGameOver(false);
     navigate('/');
   };
-  // A bit of a hack to get the game instance for restarting.
-  // We'll expose it on the window object from PhaserGame component.
-  return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2, height: '100vh', background: '#1e1e1e', width: '100%' }}>
-        
-      
-      {/* Score Header */}
-      <Box sx={{ width: '100%', mb: 2, p: 2, border: '1px solid #444', borderRadius: 1, background: '#2d2d2d' }}>
-        <Typography variant="h6" sx={{ color: '#fff' }}>Score: {score}</Typography>
-      </Box>
 
-      {/* Phaser Game Container */}
-      <Box sx={{ position: 'relative', border: '2px solid white', borderRadius: '4px', overflow: 'hidden', width: '100%', height: '100%' }}>
+  const handleThemeChange = (event: SelectChangeEvent<number>) => {
+    setTheme(event.target.value as number);
+    setTimeout(() => handleRestart(), 50);
+  };
+
+  const customData = useMemo<ExtendedLaunchConfigCustomData>(
+    () => ({
+      onScoreUpdate: (newScore) => setScore(newScore),
+      onGameOver: () => setGameOver(true),
+      onPause: () => togglePause(true),
+      currentThemeId: currentThemeId,
+    }),
+    [setScore, setGameOver, togglePause, currentThemeId]
+  );
+
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 0, height: '100vh', background: '#1e1e1e' }}>
+      <Box sx={{ position: 'relative', border: '0px solid white', borderRadius: '4px', overflow: 'hidden', width: '100%', flex: 1 }}>
+      <Typography variant="h6" sx={{ color: '#fff', position: 'absolute', top: 5, right: 15 }}>Score: {score}</Typography>
         <PhaserGame customData={customData} />
       </Box>
 
-      {/* --- ADD THE NEW MODAL HERE --- */}
       <EnterHighScoreModal />
 
-      {/* Pause Modal */}
       <Modal open={isPaused} onClose={handleContinue}>
         <Box sx={modalStyle}>
           <Typography variant="h3" component="h2">Paused</Typography>
           <Stack spacing={2} sx={{ mt: 3, width: '100%' }}>
+            <FormControl fullWidth>
+              <InputLabel id="theme-select-label">Theme</InputLabel>
+              <Select
+                labelId="theme-select-label"
+                value={currentThemeId}
+                label="Theme"
+                onChange={handleThemeChange}
+              >
+                {availableThemes.map(theme => (
+                  <MenuItem key={theme.id} value={theme.id}>{theme.name}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <Button variant="contained" color="primary" onClick={handleContinue}>Continue</Button>
             <Button variant="outlined" color="secondary" onClick={handleRestart}>Restart</Button>
             <Button variant="outlined" color="error" onClick={handleMainMenu}>Main Menu</Button>
@@ -101,7 +97,6 @@ export function GamePage() {
         </Box>
       </Modal>
 
-      {/* Game Over Modal */}
       <Modal open={isGameOver}>
         <Box sx={modalStyle}>
           <Typography variant="h3" component="h2">Game Over</Typography>
@@ -113,8 +108,5 @@ export function GamePage() {
         </Box>
       </Modal>
     </Box>
-    </ThemeProvider>
   );
-}
-
-export default GamePage;
+};
