@@ -35,7 +35,7 @@ export class GameScene extends Phaser.Scene {
 
   preload(): void {
     this.load.image('night-sky', 'assets/backgrounds/night_sky.png');
-    this.load.image('sky', 'assets/backgrounds/sky.png');
+    // this.load.image('sky', 'assets/backgrounds/sky.png');
     this.load.image('ground', 'assets/tiles/ground_tile.png');
     this.load.image('coin', 'assets/collectables/coin.png');
     // --- NEW: Load the bomb image ---
@@ -48,27 +48,34 @@ export class GameScene extends Phaser.Scene {
 
   create(): void {
     // ... (existing code for sky, platforms, player, coins, anims)
-    this.add.image(400, 300, 'sky').setScrollFactor(0);
+    // this.add.image(400, 300, 'sky').setScrollFactor(0);
     this.background = this.add.tileSprite(0, 0, 800, 600, 'night-sky').setOrigin(0, 0)
     this.background.setScrollFactor(0);
     this.platforms = this.physics.add.staticGroup();
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 10; i++) {
         this.platforms.create(128 + i * 256, 568, 'ground').setScale(2).refreshBody();
     }
     this.platforms.create(600, 400, 'ground');
     this.platforms.create(50, 300, 'ground');
     this.platforms.create(750, 280, 'ground');
+    this.platforms.create(1100, 450, 'ground');
+    this.platforms.create(1300, 320, 'ground');
+    this.platforms.create(1550, 200, 'ground');
+    this.platforms.create(1800, 400, 'ground').setScale(0.5, 1).refreshBody(); // A narrow vertical platform
+    this.platforms.create(2000, 300, 'ground');
 
     this.player = this.physics.add.sprite(100, 450, 'player');
     this.player.setBounce(0.2);
     this.player.setCollideWorldBounds(true);
+
     
-    this.coins = this.physics.add.group({ key: 'coin', repeat: 11, setXY: { x: 12, y: 0, stepX: 110 } });
+    this.coins = this.physics.add.group({ key: 'coin', repeat: 23, setXY: { x: 12, y: 0, stepX: 90 } });
     this.coins.children.iterate((c) => {
-      const coin = c as Phaser.Physics.Arcade.Sprite;
-      coin.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8)).setScale(0.3).refreshBody();
-      return true;
+        const coin = c as Phaser.Physics.Arcade.Sprite;
+        coin.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8)).setScale(0.3).refreshBody();
+        return true;
     });
+
 
     this.anims.create({ key: 'left', frames: this.anims.generateFrameNumbers('player', { start: 0, end: 3 }), frameRate: 10, repeat: -1 });
     this.anims.create({ key: 'turn', frames: [{ key: 'player', frame: 4 }], frameRate: 20 });
@@ -99,8 +106,9 @@ export class GameScene extends Phaser.Scene {
         );
     }, undefined, this);
 
-    this.physics.world.setBounds(0, 0, 1600, 600);
-    this.cameras.main.setBounds(0, 0, 1600, 600).startFollow(this.player, true, 0.08, 0.08);
+    const worldWidth = 2400; // Choose a width that fits your new platforms
+    this.physics.world.setBounds(0, 0, worldWidth, 600);
+    this.cameras.main.setBounds(0, 0, worldWidth, 600).startFollow(this.player, true, 0.08, 0.08);
 
     this.score = 0;
 
@@ -134,20 +142,20 @@ export class GameScene extends Phaser.Scene {
     this.score += 10;
     this.onScoreUpdate(this.score);
 
-    // --- NEW: Spawn a bomb every time all coins are collected ---
     if (this.coins.countActive(true) === 0) {
       this.coins.children.iterate((c) => {
         const coin = c as Phaser.Physics.Arcade.Sprite;
-        coin.enableBody(true, coin.x, 0, true, true); // Re-enable all coins
+        coin.enableBody(true, coin.x, 0, true, true);
         return true;
       });
 
-      // Spawn a bomb at a random x position across from the player
-      const x = (this.player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
-      const bomb = this.bombs.create(x, 16, 'bomb');
-      bomb.setBounce(1);
-      bomb.setCollideWorldBounds(true);
-      bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
+      for (let i = 0; i < 2; i++) {
+        const x = (this.player.x < 1200) ? Phaser.Math.Between(1200, 2400) : Phaser.Math.Between(0, 1200);
+        const bomb = this.bombs.create(x, 16, 'bomb');
+        bomb.setBounce(1);
+        bomb.setCollideWorldBounds(true);
+        bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
+      }
     }
   }
   
