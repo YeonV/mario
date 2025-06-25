@@ -14,7 +14,7 @@ export class GameScene extends Phaser.Scene {
   private coins!: Phaser.Physics.Arcade.Group;
   // --- NEW: Add a property for the bombs group ---
   private bombs!: Phaser.Physics.Arcade.Group;
-
+  private background!: Phaser.GameObjects.TileSprite;
   private score: number = 0;
   private onScoreUpdate!: (score: number) => void;
   // --- NEW: Add a property for the game over callback ---
@@ -34,6 +34,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   preload(): void {
+    this.load.image('night-sky', 'assets/backgrounds/night_sky.png');
     this.load.image('sky', 'assets/backgrounds/sky.png');
     this.load.image('ground', 'assets/tiles/ground_tile.png');
     this.load.image('coin', 'assets/collectables/coin.png');
@@ -48,7 +49,8 @@ export class GameScene extends Phaser.Scene {
   create(): void {
     // ... (existing code for sky, platforms, player, coins, anims)
     this.add.image(400, 300, 'sky').setScrollFactor(0);
-
+    this.background = this.add.tileSprite(0, 0, 800, 600, 'night-sky').setOrigin(0, 0)
+    this.background.setScrollFactor(0);
     this.platforms = this.physics.add.staticGroup();
     for (let i = 0; i < 5; i++) {
         this.platforms.create(128 + i * 256, 568, 'ground').setScale(2).refreshBody();
@@ -64,7 +66,7 @@ export class GameScene extends Phaser.Scene {
     this.coins = this.physics.add.group({ key: 'coin', repeat: 11, setXY: { x: 12, y: 0, stepX: 110 } });
     this.coins.children.iterate((c) => {
       const coin = c as Phaser.Physics.Arcade.Sprite;
-      coin.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8)).setScale(0.5).refreshBody();
+      coin.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8)).setScale(0.3).refreshBody();
       return true;
     });
 
@@ -112,6 +114,7 @@ export class GameScene extends Phaser.Scene {
     // ... (existing update logic)
     if (!this.cursors || !this.player) { return; }
     if (this.player.active === false) { return; } // Don't allow movement if game is over
+    this.background.tilePositionX = this.cameras.main.scrollX * 0.3;
 
     if (this.cursors.left.isDown) {
       this.player.setVelocityX(-200); this.player.anims.play('left', true);
