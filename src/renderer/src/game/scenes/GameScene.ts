@@ -161,7 +161,7 @@ export class GameScene extends Phaser.Scene {
     }
   }
   
-  private hitBomb(player: Phaser.Types.Physics.Arcade.GameObjectWithBody, bomb: Phaser.Types.Physics.Arcade.GameObjectWithBody): void {
+  private hitBomb(_player: Phaser.Types.Physics.Arcade.GameObjectWithBody, _bomb: Phaser.Types.Physics.Arcade.GameObjectWithBody): void {
     this.physics.pause();
     this.player.setTint(0xff0000);
     this.player.anims.play('turn');

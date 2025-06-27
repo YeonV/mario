@@ -1,10 +1,10 @@
 {
   "name": "mario",
   "productName": "mario",
-  "version": "0.0.1",
-  "description": "mario 0.0.1 - supercharged with Vitron (by Blade)",
+  "version": "0.0.2",
+  "description": "mario 0.0.2 - supercharged with Vitron (by Blade)",
   "main": "./out/main/index.js",
-  "author": "example.com",
+  "author": "YeonV",
   "homepage": "https://electron-vite.org",
   "scripts": {
     "format": "prettier --write .",
