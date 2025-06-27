@@ -79,7 +79,14 @@ export class GameScene extends Phaser.Scene {
   create(): void {
     this.background = this.add.tileSprite(0, 0, 800, 600, this.assetKeys.background).setOrigin(0, 0);
     this.background.setScrollFactor(0);
-
+    this.background.setInteractive();
+    this.background.on('pointerdown', () => {
+      // Check if the scene is not already paused to avoid conflicts
+      if (this.scene.isPaused()) return;
+      
+      this.scene.pause();
+      this.onPause();
+    });
     this.platforms = this.physics.add.staticGroup();
     for (let i = 0; i < 10; i++) {
         this.platforms.create(128 + i * 256, 568, this.assetKeys.ground).setScale(2).refreshBody();
