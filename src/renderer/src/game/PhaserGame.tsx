@@ -2,8 +2,8 @@ import { useEffect, useRef } from 'react';
 import type { FC } from 'react';
 import { launchGame, type LaunchConfigCustomData } from './index';
 import Phaser from 'phaser';
+import { useStore } from '@renderer/store/useStore';
 
-// The props interface remains the same
 interface PhaserGameProps {
   customData: LaunchConfigCustomData;
 }
@@ -11,39 +11,49 @@ interface PhaserGameProps {
 export const PhaserGame: FC<PhaserGameProps> = ({ customData }) => {
   const gameContainerRef = useRef<HTMLDivElement>(null);
   const gameInstanceRef = useRef<Phaser.Game | null>(null);
-
-  // --- HOOK 1: For Game Creation & Destruction ---
-  // This effect runs only ONCE when the component mounts, and its cleanup
-  // runs only ONCE when the component unmounts. The empty dependency array [] ensures this.
+  const isSoundEnabled = useStore((s) => s.game.isSoundEnabled);
+  const isMusicEnabled = useStore((s) => s.game.isMusicEnabled);
+  
+  // Hook 1: Creation & Destruction (Your code is perfect)
   useEffect(() => {
     if (gameContainerRef.current && !gameInstanceRef.current) {
-      // Create the game instance
-      gameInstanceRef.current = launchGame(
-        gameContainerRef.current.id,
-        customData
-      );
-      // Expose it on the window for our restart handlers
+      gameInstanceRef.current = launchGame(gameContainerRef.current.id, customData);
       (window as any).phaserGame = gameInstanceRef.current;
     }
-
     return () => {
-      // Destroy the game instance on unmount
       gameInstanceRef.current?.destroy(true);
       gameInstanceRef.current = null;
       (window as any).phaserGame = null;
     };
-  }, []); // <-- CRITICAL: Empty dependency array
+  }, []);
 
-  // --- HOOK 2: For Updating Data on the Running Game ---
-  // This effect runs whenever the `customData` prop changes.
+  // Hook 2: Updating Data (Your code is perfect)
   useEffect(() => {
-    // If the game instance exists, just update its customData property.
-    // This does NOT restart the game. It just makes the new data
-    // available for the *next* time the scene's init() method is called (e.g., on restart).
     if (gameInstanceRef.current) {
       (gameInstanceRef.current as any).customData = customData;
     }
-  }, [customData]); // <-- This now safely updates data without restarting
+  }, [customData]);
+
+  // --- MODIFIED: Hook 3: For Syncing ALL Sound States ---
+  // This now runs when EITHER sound setting changes.
+useEffect(() => {
+    const game = gameInstanceRef.current;
+    if (game) {
+      // The master 'Sound' toggle controls ALL audio via the global mute. This is correct.
+      game.sound.mute = !isSoundEnabled;
+
+      // The 'Music' toggle specifically targets the music track.
+      // We will look for a special 'musicTrack' property on the game instance.
+      const musicTrack = (game as any).musicTrack as Phaser.Sound.BaseSound;
+      
+      if (musicTrack && musicTrack.isPlaying) {
+          // Here we perform a type check to safely access setMute
+          if ('setMute' in musicTrack) {
+            (musicTrack as Phaser.Sound.WebAudioSound | Phaser.Sound.HTML5AudioSound).setMute(!isMusicEnabled);
+          }
+      }
+    }
+  }, [isSoundEnabled, isMusicEnabled]);
 
   return (
     <div

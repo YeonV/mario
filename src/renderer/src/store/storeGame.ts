@@ -15,9 +15,11 @@ export const storeGame = {
   awaitingHighScoreName: false,
   highScores: [] as HighScore[],
   availableThemes: THEMES,
-  currentThemeId: 1,
+  currentThemeId: 3,
   coinScale: 0.3,
   bombScale: 1.0,
+  isSoundEnabled: true,
+  isMusicEnabled: true,
 };
 
 export const storeGameActions = (set: any, get: any) => ({
@@ -105,6 +107,24 @@ export const storeGameActions = (set: any, get: any) => ({
       }),
       false,
       'game/setBombScale'
+    );
+  },
+  toggleSound: (): void => {
+    set(
+      produce((state: any) => {
+        state.game.isSoundEnabled = !state.game.isSoundEnabled;
+      }),
+      false,
+      'game/toggleSound'
+    );
+  },
+  toggleMusic: (): void => {
+    set(
+      produce((state: any) => {
+        state.game.isMusicEnabled = !state.game.isMusicEnabled;
+      }),
+      false,
+      'game/toggleMusic'
     );
   },
 });

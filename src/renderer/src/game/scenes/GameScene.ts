@@ -61,6 +61,12 @@ export class GameScene extends Phaser.Scene {
         frameHeight: 48,
       });
     });
+
+    this.load.audio('music', ['assets/sfx/music.ogg', 'assets/sfx/music.m4a']);
+    this.load.audio('jump', ['assets/sfx/jump.ogg', 'assets/sfx/jump.m4a']);
+    this.load.audio('coin', ['assets/sfx/coin.ogg', 'assets/sfx/coin.m4a']);
+    this.load.audio('gameover', ['assets/sfx/gameover.ogg', 'assets/sfx/gameover.m4a']);
+    this.load.audio('powerup', ['assets/sfx/powerup.ogg', 'assets/sfx/powerup.m4a']);
     
   }
 
@@ -124,6 +130,9 @@ export class GameScene extends Phaser.Scene {
         this.scene.pause();
         this.onPause();
     });
+    const music = this.sound.add('music', { loop: true, volume: 0.4 });
+    music.play();
+    (this.game as any).musicTrack = music;
   }
 
   update(): void {
@@ -143,6 +152,7 @@ export class GameScene extends Phaser.Scene {
     }
     if (this.cursors.up.isDown && this.player.body?.touching.down) {
         this.player.setVelocityY(-350);
+        this.sound.play('jump', { volume: 0.6 });
     }
   }
 
@@ -151,8 +161,10 @@ export class GameScene extends Phaser.Scene {
     coinSprite.disableBody(true, true);
     this.score += 10;
     this.onScoreUpdate(this.score);
+    this.sound.play('coin');
 
     if (this.coins.countActive(true) === 0) {
+        this.sound.play('powerup', { volume: 0.6 });
         this.coins.children.iterate((c) => {
             const coin = c as Phaser.Physics.Arcade.Sprite;
             coin.enableBody(true, coin.x, 0, true, true);
@@ -173,6 +185,11 @@ export class GameScene extends Phaser.Scene {
     this.player.setTint(0xff0000);
     this.player.anims.play('turn');
     this.player.active = false;
+    const musicTrack = (this.game as any).musicTrack as Phaser.Sound.BaseSound;
+    if (musicTrack) {
+      musicTrack.stop();
+    }
+    this.sound.play('gameover'); 
     this.onGameOver();
   }
 }
