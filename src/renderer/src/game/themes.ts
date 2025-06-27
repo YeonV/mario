@@ -13,9 +13,8 @@ export const THEMES: Theme[] = [
     id: 2,
     name: 'Day Mode',
   },
-  // To add a new theme, just add an object here and drop in the correspondingly numbered assets!
-  // {
-  //   id: 3,
-  //   name: 'Candy World',
-  // }
+  {
+    id: 3,
+    name: 'Mario Mode',
+  },
 ];

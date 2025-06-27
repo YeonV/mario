@@ -16,6 +16,8 @@ export const storeGame = {
   highScores: [] as HighScore[],
   availableThemes: THEMES,
   currentThemeId: 1,
+  coinScale: 0.3,
+  bombScale: 1.0,
 };
 
 export const storeGameActions = (set: any, get: any) => ({
@@ -84,6 +86,25 @@ export const storeGameActions = (set: any, get: any) => ({
       }),
       false,
       'game/setTheme'
+    );
+  },
+  setCoinScale: (scale: number): void => {
+    set(
+      produce((state: any) => {
+        state.game.coinScale = scale;
+      }),
+      false,
+      'game/setCoinScale'
+    );
+  },
+
+  setBombScale: (scale: number): void => {
+    set(
+      produce((state: any) => {
+        state.game.bombScale = scale;
+      }),
+      false,
+      'game/setBombScale'
     );
   },
 });

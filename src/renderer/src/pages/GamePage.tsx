@@ -1,4 +1,4 @@
-import { Box, Button, Modal, Stack, Typography, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';
+import { Box, Button, Modal, Stack, Typography, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent, Slider } from '@mui/material';
 import { useStore } from '../store/useStore';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +10,8 @@ interface ExtendedLaunchConfigCustomData extends LaunchConfigCustomData {
   onGameOver: () => void;
   onPause: () => void;
   currentThemeId: number;
+  coinScale: number;
+  bombScale: number;
 }
 
 export const modalStyle = {
@@ -27,8 +29,8 @@ export const modalStyle = {
 
 export const GamePage = () => {
   const navigate = useNavigate();
-  const { score, isGameOver, isPaused, availableThemes, currentThemeId } = useStore((s) => s.game);
-  const { setScore, setGameOver, togglePause, setTheme } = useStore((s) => s);
+  const { score, isGameOver, isPaused, availableThemes, currentThemeId, coinScale, bombScale } = useStore((s) => s.game);
+  const { setScore, setGameOver, togglePause, setTheme, setCoinScale, setBombScale } = useStore((s) => s);
 
   const getGame = (): Phaser.Game | undefined => (window as any).phaserGame;
 
@@ -54,14 +56,20 @@ export const GamePage = () => {
     setTimeout(() => handleRestart(), 50);
   };
 
+   const handleScaleChangeCommitted = () => {
+    // setTimeout(() => handleRestart(), 50);
+  };
+
   const customData = useMemo<ExtendedLaunchConfigCustomData>(
     () => ({
       onScoreUpdate: (newScore) => setScore(newScore),
       onGameOver: () => setGameOver(true),
       onPause: () => togglePause(true),
       currentThemeId: currentThemeId,
+      coinScale: coinScale,
+      bombScale: bombScale,
     }),
-    [setScore, setGameOver, togglePause, currentThemeId]
+    [setScore, setGameOver, togglePause, currentThemeId, coinScale, bombScale]
   );
 
   return (
@@ -90,6 +98,30 @@ export const GamePage = () => {
                 ))}
               </Select>
             </FormControl>
+             <Box>
+              <Typography gutterBottom>Coin Size</Typography>
+              <Slider
+                value={coinScale}
+                onChange={(_event, newValue) => setCoinScale(newValue as number)}
+                onChangeCommitted={handleScaleChangeCommitted}
+                min={0.1}
+                max={1.0}
+                step={0.05}
+                aria-labelledby="coin-scale-slider"
+              />
+            </Box>
+            <Box>
+              <Typography gutterBottom>Bomb Size</Typography>
+              <Slider
+                value={bombScale}
+                onChange={(_event, newValue) => setBombScale(newValue as number)}
+                onChangeCommitted={handleScaleChangeCommitted}
+                min={0.5}
+                max={2.0}
+                step={0.1}
+                aria-labelledby="bomb-scale-slider"
+              />
+            </Box>
             <Button variant="contained" color="primary" onClick={handleContinue}>Continue</Button>
             <Button variant="outlined" color="secondary" onClick={handleRestart}>Restart</Button>
             <Button variant="outlined" color="error" onClick={handleMainMenu}>Main Menu</Button>

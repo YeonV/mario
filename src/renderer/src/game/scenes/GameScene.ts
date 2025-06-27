@@ -6,6 +6,8 @@ interface ExtendedLaunchConfigCustomData extends LaunchConfigCustomData {
   onGameOver: () => void;
   onPause: () => void;
   currentThemeId: number;
+  coinScale: number;
+  bombScale: number;
 }
 
 export class GameScene extends Phaser.Scene {
@@ -21,6 +23,8 @@ export class GameScene extends Phaser.Scene {
   private onPause!: () => void;
   private currentThemeId!: number;
   private assetKeys!: { background: string, player: string, coin: string, ground: string, bomb: string };
+  private coinScale!: number;
+  private bombScale!: number;
 
   constructor() {
     super({ key: 'GameScene' });
@@ -32,6 +36,8 @@ export class GameScene extends Phaser.Scene {
     this.onGameOver = customData.onGameOver;
     this.onPause = customData.onPause;
     this.currentThemeId = customData.currentThemeId;
+    this.coinScale = customData.coinScale;
+    this.bombScale = customData.bombScale;
 
     // Dynamically generate the asset keys based on the theme ID
     this.assetKeys = {
@@ -81,7 +87,7 @@ export class GameScene extends Phaser.Scene {
     this.coins = this.physics.add.group({ key: this.assetKeys.coin, repeat: 23, setXY: { x: 12, y: 0, stepX: 90 } });
     this.coins.children.iterate((c) => {
         const coin = c as Phaser.Physics.Arcade.Sprite;
-        coin.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8)).setScale(0.3).refreshBody();
+        coin.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8)).setScale(this.coinScale).refreshBody();
         return true;
     });
 
@@ -156,6 +162,7 @@ export class GameScene extends Phaser.Scene {
         for (let i = 0; i < 2; i++) {
             const x = (this.player.x < 1200) ? Phaser.Math.Between(1200, 2400) : Phaser.Math.Between(0, 1200);
             const bomb = this.bombs.create(x, 16, `bomb${this.currentThemeId}`) as Phaser.Physics.Arcade.Sprite;
+            bomb.setScale(this.bombScale).refreshBody();
             bomb.setBounce(1).setCollideWorldBounds(true).setVelocity(Phaser.Math.Between(-200, 200), 20);
         }
     }
