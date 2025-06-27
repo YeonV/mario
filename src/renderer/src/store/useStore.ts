@@ -38,6 +38,15 @@ export const useStore = create<AppState>()(
       ),
       {
         name: 'mario-storage',
+        partialize: (state: AppState) => ({
+          ...state,
+          // Remove isPaused and isGameOver from persisted game state
+          game: {
+            ...state.game,
+            isPaused: undefined,
+            isGameOver: undefined,
+          },
+        }),
       }
     )
   )

@@ -4,7 +4,7 @@ import { useStore } from '../store/useStore';
 import { modalStyle } from '@renderer/pages/GamePage';
 
 
-export const EnterHighScoreModal = () => {
+export const HighScoreModal = () => {
   const [name, setName] = useState('');
   const score = useStore((s) => s.game.score);
   const addHighScore = useStore((s) => s.addHighScore);

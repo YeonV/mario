@@ -1,15 +1,18 @@
-import { Box, Button, Modal, Stack, Typography, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';
+import { Box, Button, Modal, Stack, Typography } from '@mui/material';
 import { useStore } from '../store/useStore';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PhaserGame } from '../game/PhaserGame';
 import type { LaunchConfigCustomData } from '../game';
-import { EnterHighScoreModal } from '../components/EnterHighScoreModal';
+import { HighScoreModal } from '../components/HighScoreModal';
+import { Options } from '@renderer/components/Options';
 
 interface ExtendedLaunchConfigCustomData extends LaunchConfigCustomData {
   onGameOver: () => void;
   onPause: () => void;
   currentThemeId: number;
+  coinScale: number;
+  bombScale: number;
 }
 
 export const modalStyle = {
@@ -27,8 +30,8 @@ export const modalStyle = {
 
 export const GamePage = () => {
   const navigate = useNavigate();
-  const { score, isGameOver, isPaused, availableThemes, currentThemeId } = useStore((s) => s.game);
-  const { setScore, setGameOver, togglePause, setTheme } = useStore((s) => s);
+  const { score, isGameOver, isPaused, currentThemeId, coinScale, bombScale } = useStore((s) => s.game);
+  const { setScore, setGameOver, togglePause } = useStore((s) => s);
 
   const getGame = (): Phaser.Game | undefined => (window as any).phaserGame;
 
@@ -49,19 +52,16 @@ export const GamePage = () => {
     navigate('/');
   };
 
-  const handleThemeChange = (event: SelectChangeEvent<number>) => {
-    setTheme(event.target.value as number);
-    setTimeout(() => handleRestart(), 50);
-  };
-
   const customData = useMemo<ExtendedLaunchConfigCustomData>(
     () => ({
       onScoreUpdate: (newScore) => setScore(newScore),
       onGameOver: () => setGameOver(true),
       onPause: () => togglePause(true),
       currentThemeId: currentThemeId,
+      coinScale: coinScale,
+      bombScale: bombScale,
     }),
-    [setScore, setGameOver, togglePause, currentThemeId]
+    [setScore, setGameOver, togglePause, currentThemeId, coinScale, bombScale]
   );
 
   return (
@@ -71,27 +71,15 @@ export const GamePage = () => {
         <PhaserGame customData={customData} />
       </Box>
 
-      <EnterHighScoreModal />
+      <HighScoreModal />
 
       <Modal open={isPaused} onClose={handleContinue}>
         <Box sx={modalStyle}>
           <Typography variant="h3" component="h2">Paused</Typography>
+          <Options />
           <Stack spacing={2} sx={{ mt: 3, width: '100%' }}>
-            <FormControl fullWidth>
-              <InputLabel id="theme-select-label">Theme</InputLabel>
-              <Select
-                labelId="theme-select-label"
-                value={currentThemeId}
-                label="Theme"
-                onChange={handleThemeChange}
-              >
-                {availableThemes.map(theme => (
-                  <MenuItem key={theme.id} value={theme.id}>{theme.name}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
             <Button variant="contained" color="primary" onClick={handleContinue}>Continue</Button>
-            <Button variant="outlined" color="secondary" onClick={handleRestart}>Restart</Button>
+            <Button variant="outlined" color="error" onClick={handleRestart}>Restart</Button>
             <Button variant="outlined" color="error" onClick={handleMainMenu}>Main Menu</Button>
           </Stack>
         </Box>
@@ -103,7 +91,7 @@ export const GamePage = () => {
           <Typography sx={{ mt: 2 }}>Your final score: {score}</Typography>
           <Stack spacing={2} sx={{ mt: 3, width: '100%' }}>
             <Button variant="contained" color="primary" onClick={handleRestart}>Play Again</Button>
-            <Button variant="outlined" color="secondary" onClick={handleMainMenu}>Main Menu</Button>
+            <Button variant="outlined" color="error" onClick={handleMainMenu}>Main Menu</Button>
           </Stack>
         </Box>
       </Modal>
