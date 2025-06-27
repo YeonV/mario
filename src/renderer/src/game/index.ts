@@ -1,9 +1,16 @@
 import Phaser from 'phaser';
 import { GameScene } from './scenes/GameScene';
 
+export interface TouchControls {
+  left: (isDown: boolean) => void;
+  right: (isDown: boolean) => void;
+  up: () => void;
+}
+
 // Define the shape of the data we'll pass from React to our Phaser scenes
 export interface LaunchConfigCustomData {
   onScoreUpdate: (score: number) => void;
+  onControlsCreated: (controls: TouchControls) => void;
 }
 
 export const launchGame = (containerId: string, customData: LaunchConfigCustomData): Phaser.Game => {

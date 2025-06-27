@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { type LaunchConfigCustomData } from '../index';
+import { TouchControls, type LaunchConfigCustomData } from '../index';
 import { THEMES } from '../themes';
 
 interface ExtendedLaunchConfigCustomData extends LaunchConfigCustomData {
@@ -8,6 +8,7 @@ interface ExtendedLaunchConfigCustomData extends LaunchConfigCustomData {
   currentThemeId: number;
   coinScale: number;
   bombScale: number;
+  onControlsCreated: (controls: TouchControls) => void;
 }
 
 export class GameScene extends Phaser.Scene {
@@ -25,6 +26,10 @@ export class GameScene extends Phaser.Scene {
   private assetKeys!: { background: string, player: string, coin: string, ground: string, bomb: string };
   private coinScale!: number;
   private bombScale!: number;
+  private onControlsCreated!: (controls: TouchControls) => void;
+  // --- NEW: Internal flags for touch state ---
+  private touchLeftIsDown: boolean = false;
+  private touchRightIsDown: boolean = false;
 
   constructor() {
     super({ key: 'GameScene' });
@@ -38,6 +43,7 @@ export class GameScene extends Phaser.Scene {
     this.currentThemeId = customData.currentThemeId;
     this.coinScale = customData.coinScale;
     this.bombScale = customData.bombScale;
+    this.onControlsCreated = customData.onControlsCreated
 
     // Dynamically generate the asset keys based on the theme ID
     this.assetKeys = {
@@ -103,6 +109,19 @@ export class GameScene extends Phaser.Scene {
     this.anims.create({ key: 'right', frames: this.anims.generateFrameNumbers(this.assetKeys.player, { start: 5, end: 8 }), frameRate: 10, repeat: -1 });
 
     if (this.input.keyboard) this.cursors = this.input.keyboard.createCursorKeys();
+
+    const touchControls: TouchControls = {
+      left: (isDown) => { this.touchLeftIsDown = isDown; },
+      right: (isDown) => { this.touchRightIsDown = isDown; },
+      up: () => {
+        // Only jump if the player is on the ground
+        if (this.player.body?.touching.down) {
+          this.player.setVelocityY(-350);
+          this.sound.play('jump', { volume: 0.6 });
+        }
+      },
+    };
+    this.onControlsCreated(touchControls);
     this.bombs = this.physics.add.group();
 
     this.physics.add.collider(this.player, this.platforms);
@@ -140,10 +159,10 @@ export class GameScene extends Phaser.Scene {
     
     this.background.tilePositionX = this.cameras.main.scrollX * 0.3;
 
-    if (this.cursors.left.isDown) {
+    if (this.cursors.left.isDown || this.touchLeftIsDown) {
         this.player.setVelocityX(-200);
         this.player.anims.play('left', true);
-    } else if (this.cursors.right.isDown) {
+    } else if (this.cursors.right.isDown || this.touchRightIsDown) {
         this.player.setVelocityX(200);
         this.player.anims.play('right', true);
     } else {

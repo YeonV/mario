@@ -1,11 +1,13 @@
 import { Box, Button, Modal, Stack, Typography } from '@mui/material';
 import { useStore } from '../store/useStore';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PhaserGame } from '../game/PhaserGame';
 import type { LaunchConfigCustomData } from '../game';
 import { HighScoreModal } from '../components/HighScoreModal';
 import { Options } from '@renderer/components/Options';
+import type { TouchControls as IPhaserTouchControls } from '../game'; // Import the type
+import { TouchControls } from '@renderer/components/TouchControls';
 
 interface ExtendedLaunchConfigCustomData extends LaunchConfigCustomData {
   onGameOver: () => void;
@@ -13,6 +15,7 @@ interface ExtendedLaunchConfigCustomData extends LaunchConfigCustomData {
   currentThemeId: number;
   coinScale: number;
   bombScale: number;
+  onControlsCreated: (controls: IPhaserTouchControls) => void;
 }
 
 export const modalStyle = {
@@ -30,6 +33,7 @@ export const modalStyle = {
 
 export const GamePage = () => {
   const navigate = useNavigate();
+  const [touchControls, setTouchControls] = useState<IPhaserTouchControls | null>(null);
   const { score, isGameOver, isPaused, currentThemeId, coinScale, bombScale } = useStore((s) => s.game);
   const { setScore, setGameOver, togglePause } = useStore((s) => s);
 
@@ -60,6 +64,8 @@ export const GamePage = () => {
       currentThemeId: currentThemeId,
       coinScale: coinScale,
       bombScale: bombScale,
+      onControlsCreated: (controls) => setTouchControls(controls),
+
     }),
     [setScore, setGameOver, togglePause, currentThemeId, coinScale, bombScale]
   );
@@ -69,6 +75,7 @@ export const GamePage = () => {
       <Box sx={{ position: 'relative', border: '0px solid white', borderRadius: '4px', overflow: 'hidden', width: '100%', flex: 1 }}>
       <Typography variant="h6" sx={{ color: '#fff', position: 'absolute', top: 5, right: 15 }}>Score: {score}</Typography>
         <PhaserGame customData={customData} />
+        {touchControls && <TouchControls controls={touchControls} />}
       </Box>
 
       <HighScoreModal />
