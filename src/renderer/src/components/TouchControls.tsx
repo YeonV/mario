@@ -5,6 +5,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 // import PauseIcon from '@mui/icons-material/Pause';
 import { TouchControls as IPhaserTouchControls } from '../game';
 import { useEffect, useRef } from 'react'; // <-- Import useRef and useEffect
+import { Pause } from '@mui/icons-material';
 
 interface TouchControlsProps {
   controls: IPhaserTouchControls;
@@ -76,7 +77,7 @@ export const TouchControls = ({ controls, onPauseClick }: TouchControlsProps) =>
     <Box
       sx={{
         position: 'absolute',
-        bottom: 200,
+        bottom: 100,
         left: 0,
         width: '100%',
         height: '100%',
@@ -89,15 +90,15 @@ export const TouchControls = ({ controls, onPauseClick }: TouchControlsProps) =>
     >
         {/* Pause Button */}
         <Box sx={{ display: 'flex',pointerEvents: 'auto', position: 'absolute', bottom: -30, left: '50%' }}>
-        {/* <Fab
+        <Fab
           ref={pauseButtonRef} // <-- Assign ref
           color="primary"
           aria-label="pause"
-          onMouseDown={(e) => { e.preventDefault(); onPauseClick(); console.log('Pause clicked'); }}
+          onMouseDown={(e) => { e.preventDefault(); onPauseClick(); }}
         //   onTouchStart={(e) => { e.preventDefault(); onPauseClick(); }} // Touch event for mobile
         >
-          <PauseIcon />
-        </Fab> */}
+          <Pause />
+        </Fab>
         </Box>
                     
                           {/* Left/Right Buttons */}
