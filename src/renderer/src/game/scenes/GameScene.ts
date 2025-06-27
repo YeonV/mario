@@ -30,6 +30,7 @@ export class GameScene extends Phaser.Scene {
   // --- NEW: Internal flags for touch state ---
   private touchLeftIsDown: boolean = false;
   private touchRightIsDown: boolean = false;
+  private touchUpIsDown: boolean = false
 
   constructor() {
     super({ key: 'GameScene' });
@@ -114,20 +115,23 @@ export class GameScene extends Phaser.Scene {
     this.anims.create({ key: 'left', frames: this.anims.generateFrameNumbers(this.assetKeys.player, { start: 0, end: 3 }), frameRate: 10, repeat: -1 });
     this.anims.create({ key: 'turn', frames: [{ key: this.assetKeys.player, frame: 4 }], frameRate: 20 });
     this.anims.create({ key: 'right', frames: this.anims.generateFrameNumbers(this.assetKeys.player, { start: 5, end: 8 }), frameRate: 10, repeat: -1 });
+    
 
     if (this.input.keyboard) this.cursors = this.input.keyboard.createCursorKeys();
 
     const touchControls: TouchControls = {
       left: (isDown) => { this.touchLeftIsDown = isDown; },
       right: (isDown) => { this.touchRightIsDown = isDown; },
-      up: () => {
-        // Only jump if the player is on the ground
-        if (this.player.body?.touching.down) {
-          this.player.setVelocityY(-350);
-          this.sound.play('jump', { volume: 0.6 });
-        }
-      },
+      up: (isDown) => { this.touchUpIsDown = isDown; },
     };
+    //   up: () => {
+    //     // Only jump if the player is on the ground
+    //     if (this.player.body?.touching.down) {
+    //       this.player.setVelocityY(-350);
+    //       this.sound.play('jump', { volume: 0.6 });
+    //     }
+    //   },
+    // };
     this.onControlsCreated(touchControls);
     this.bombs = this.physics.add.group();
 
@@ -176,7 +180,7 @@ export class GameScene extends Phaser.Scene {
         this.player.setVelocityX(0);
         this.player.anims.play('turn');
     }
-    if (this.cursors.up.isDown && this.player.body?.touching.down) {
+    if ((this.cursors.up.isDown || this.touchUpIsDown) && this.player.body?.touching.down) {
         this.player.setVelocityY(-350);
         this.sound.play('jump', { volume: 0.6 });
     }

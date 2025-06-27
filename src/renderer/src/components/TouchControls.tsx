@@ -53,14 +53,15 @@ export const TouchControls = ({ controls, onPauseClick }: TouchControlsProps) =>
     const onLeftEnd = (e: Event) => { e.preventDefault(); controls.left(false); };
     const onRightStart = (e: Event) => { e.preventDefault(); controls.right(true); };
     const onRightEnd = (e: Event) => { e.preventDefault(); controls.right(false); };
-    const onJump = (e: Event) => { e.preventDefault(); controls.up(); };
+    const onJumpStart = (e: Event) => { e.preventDefault(); controls.up(true); };
+    const onJumpEnd = (e: Event) => { e.preventDefault(); controls.up(false); };
     const onPause = (e: Event) => { e.preventDefault(); onPauseClick(); };
 
     // Add the listeners
     
     const cleanupLeft = addListeners(leftButtonRef, onLeftStart, onLeftEnd);
     const cleanupRight = addListeners(rightButtonRef, onRightStart, onRightEnd);
-    const cleanupJump = addListeners(jumpButtonRef, onJump);
+    const cleanupJump = addListeners(jumpButtonRef, onJumpStart, onJumpEnd);
     const cleanupPause = addListeners(pauseButtonRef, onPause);
 
     return () => {
@@ -132,7 +133,9 @@ export const TouchControls = ({ controls, onPauseClick }: TouchControlsProps) =>
           ref={jumpButtonRef} // <-- Assign ref
           color="primary"
           aria-label="jump"
-          onMouseDown={(e) => { e.preventDefault(); controls.up(); }}
+          onMouseDown={(e) => { e.preventDefault(); controls.up(true); }}
+          onMouseUp={(e) => { e.preventDefault(); controls.up(false); }}
+          onMouseLeave={(e) => { e.preventDefault(); controls.up(false); }}
         >
           <ArrowUpwardIcon />
         </Fab>

@@ -4,7 +4,7 @@ import { GameScene } from './scenes/GameScene';
 export interface TouchControls {
   left: (isDown: boolean) => void;
   right: (isDown: boolean) => void;
-  up: () => void;
+  up: (isDown: boolean) => void;
 }
 
 // Define the shape of the data we'll pass from React to our Phaser scenes
