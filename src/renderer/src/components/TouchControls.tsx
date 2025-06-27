@@ -77,7 +77,7 @@ export const TouchControls = ({ controls, onPauseClick }: TouchControlsProps) =>
     <Box
       sx={{
         position: 'absolute',
-        bottom: 100,
+        bottom: 50,
         left: 0,
         width: '100%',
         height: '100%',

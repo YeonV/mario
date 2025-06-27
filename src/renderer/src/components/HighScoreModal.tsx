@@ -17,7 +17,7 @@ export const HighScoreModal = () => {
   };
 
   return (
-    <Modal open={isVisible}>
+    <Modal open={isVisible} onClick={(e) => e.stopPropagation()}>
       <Box sx={modalStyle}>
         <Typography variant="h4">New High Score!</Typography>
         <Typography variant="h5" sx={{ mt: 1 }}>Score: {score}</Typography>

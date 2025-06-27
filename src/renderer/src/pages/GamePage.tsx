@@ -73,7 +73,7 @@ export const GamePage = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 0, height: '100vh', background: '#1e1e1e' }}>
       <Box sx={{ position: 'relative', border: '0px solid white', borderRadius: '4px', overflow: 'hidden', width: '100%', flex: 1 }}>
-        <Box sx={{ color: '#fff', position: 'absolute', top: 5, right: 15, width: 170, textAlign: 'left', zIndex: 10 }}>
+        <Box sx={{ color: '#fff', position: 'absolute', top: 5, right: 15, width: 100, textAlign: 'left', zIndex: 10 }}>
           <Typography variant="h6" >Score: {score}</Typography>
         </Box>
         <PhaserGame customData={customData} />
